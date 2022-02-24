@@ -1,0 +1,333 @@
+"""
+Задание 1.
+Пользователь вводит данные о количестве предприятий,
+их наименования и прибыль за 4 квартала
+(т.е. 4 отдельных числа) для каждого предприятия.
+Программа должна определить среднюю прибыль (за год для всех предприятий)
+и вывести наименования предприятий, чья прибыль выше среднего и отдельно
+вывести наименования предприятий, чья прибыль ниже среднего
+Подсказка:
+Для решения задачи обязательно примените коллекцию из модуля collections
+Для лучшего освоения материала можете сделать
+несколько варианто решения этого задания,
+применив несколько коллекций из модуля collections
+Пример:
+Введите количество предприятий для расчета прибыли: 2
+Введите название предприятия: Рога
+через пробел введите прибыль данного предприятия
+за каждый квартал(Всего 4 квартала): 235 345634 55 235
+Введите название предприятия: Копыта
+через пробел введите прибыль данного предприятия
+за каждый квартал(Всего 4 квартала): 345 34 543 34
+Средняя годовая прибыль всех предприятий: 173557.5
+Предприятия, с прибылью выше среднего значения: Рога
+Предприятия, с прибылью ниже среднего значения: Копыта
+"""
+
+
+
+from collections import defaultdict
+
+
+def alt(data):
+    n = len(data) * 4
+    total = 0
+
+    for item in data.values():
+        total += sum(item)
+
+    return total / n
+
+
+
+def dict_fill():
+    i = int(input("Введите количества предприятий для расчета прибыли: "))
+    for a in range(i):
+        name = input("Введите название предприятия: ")
+        val = input("через пробел введите прибыль данного предприятия\n"
+                    "За каждый квартал(Всего 4): ")
+        val = [int(item) for item in val.split(" ")]
+        companies[name] = val
+
+
+def output(data, target):
+    print(f'Средняя годовая прибыль всех предприятий:{target} ')
+    print(f'Предприятия, с прибылью выше среднего', end=" ")
+    for name, val in data:
+        if sum(val) >= target:
+            print(name, end=" ")
+    print(f'Предприятия, с прибылью ниже среднего значения:', end=' ')
+    for name, val in data:
+        print(name)
+        if sum(val) < target:
+            print(name, end=" ")
+
+
+if __name__ == "__main__":
+
+    companies = defaultdict(list)
+    dict_fill()
+    output(companies.items(), alt(companies))
+
+
+
+"""
+Задание 2.
+Написать программу сложения и умножения двух шестнадцатеричных чисел.
+При этом каждое число представляется как массив,
+элементы которого это цифры числа.
+Например, пользователь ввёл A2 и C4F.
+Сохранить их как [‘A’, ‘2’] и [‘C’, ‘4’, ‘F’] соответственно.
+Сумма чисел из примера: [‘C’, ‘F’, ‘1’],
+произведение - [‘7’, ‘C’, ‘9’, ‘F’, ‘E’].
+Подсказка:
+Попытайтесь решить это задание в двух вариантах
+1) через collections
+defaultdict(list)
+int(, 16)
+reduce
+2) через ООП
+вспомните про перегрузку методов
+__mul__
+__add__
+"""
+
+
+
+from collections import  defaultdict
+from functools import reduce
+
+
+#1.
+
+
+def insert_data(data):
+    if type(data) == list:
+        for item in data:
+            num[item] = [item[n] for n in range(len(item))]
+    else:
+        num[data] = [data(n) for n in range(len(data))]
+
+
+def convert(n):
+    table = "0123456789ABCDEF"
+    if n < 16:
+        return table[n]
+    x, y = divmod(n, 16)
+    return convert(x) + table[y] if x else table[y]
+
+def sum_hex(data):
+    return convert(reduce(lambda a, b: int(a, 16) + int(b, 16), data))
+
+
+def mul_hex(data):
+    return convert(reduce(lambda a, b: int(a, 16) * int(b, 16), data))
+
+
+def output(data, sum, mull):
+    for key in data.keys():
+        if key == sum:
+            print(f"Сумма чисел: {data[key]}")
+        elif key == mull:
+            print(f"Произведение чисел{data[key]}")
+        else:
+            print(f"Число {key} хранится как {data[key]}")
+
+
+#2.
+
+class Digits:
+
+    def __init__(self):
+        self.numbers = []
+
+    def insert(self, *args):
+        if len(self.numbers) == 0:
+            data = input("Введите два числа в 16-м формате: ").split(" ")
+            for item in data:
+                self.numbers.append([item[n] for n in range(len(item))])
+        else:
+            self.numbers.append([args[0][n] for n in range(len(args[0]))])
+
+
+    def convert(self, *args):
+        table = "0123456789ABCDEF"
+        if args[0] < 16:
+            return table[args[0]]
+        x, y = divmod(args[0], 16)
+        return self.convert(x) + table[y] if x else table[y]
+
+
+    def __add__(self, other):
+        num_one = num_two = ""
+        for item in self.numbers[0]:
+            num_one += item
+        for item in other.numbers[1]:
+            num_two += item
+        return self.convert(int(num_one, 16) + int(num_two, 16))
+
+    def __mul__(self, other):
+        num_one = num_two = ""
+        for item in self.numbers[0]:
+            num_one += item
+        for item in other.numbers[1]:
+            num_two += item
+        return self.convert(int(num_one, 16) + int(num_two, 16))
+
+    def output(self):
+        print(f"Первое число: {self.numbers[0]}")
+        print(f"Второе число: {self.numbers[1]}")
+        print(f"Результат первой операции: {self.numbers[2]}")
+        print(f"Результат второй операции: {self.numbers[3]}")
+
+if __name__ == "__main__":
+
+    num = defaultdict(list)
+    user_data = input("Введите два числа в 16-м формате: ").split(" ")
+
+    insert_data(user_data)
+    rez_sum = sum_hex(num)
+    rez_mul = mul_hex(num)
+    insert_data(rez_sum)
+    insert_data(rez_mul)
+    output(num, rez_sum, rez_mul)
+
+    two_numbers = Digits()
+    two_numbers.insert()
+    two_numbers.insert(two_numbers + two_numbers)
+    two_numbers.insert(two_numbers * two_numbers)
+    two_numbers.output()
+
+
+"""
+Задача 3.
+В соответствии с документацией Python,
+deque – это обобщение стеков и очередей.
+Вот основное правило: если вам нужно
+что-то быстро дописать или вытащить, используйте deque.
+Если вам нужен быстрый случайный доступ, используйте list
+Задача: создайте простой список (list) и очередь (deque).
+Выполните различные операции с каждым из объектов.
+Сделайте замеры и оцените, насколько информация в документации
+соответствует дейстивтельности.
+1) сравнить операции
+append, pop, extend списка и дека и сделать выводы что и где быстрее
+2) сравнить операции
+appendleft, popleft, extendleft дека и соответствующих им операций списка
+и сделать выводы что и где быстрее
+3) сравнить операции получения элемента списка и дека
+и сделать выводы что и где быстрее
+Подсказка:
+для того, чтобы снизить погрешность, желательно операции по каждой ф-ции
+(append, pop и т.д.) проводить в циклах. Для замеров используйте timeit.
+"""
+
+from collections import deque
+from timeit import timeit
+
+
+def output(data):
+    print(data[data.find(".")+1:data.find("(")], end=": ")
+    print(f'{data[data.find("test"):data.find(".")]}',
+          timeit(f"{data}", globals=globals(), number=1000))
+
+
+if __name__ == "__main__":
+
+    test_list = []
+    test_deque = deque()
+
+    n = [i for i in range(100)]
+
+
+#1
+
+
+    print("#1")
+    output("""for i in n:
+                test_list.append(i)""")          # 0.021547515999827738
+    output("""for i in n:
+                   test_deque.append(i)""")      # 0.015791098999670794
+    output('test_list.pop()')                    # 9.318800039181951e-05
+    output('test_deque.pop()')                   # 8.602799971413333e-05
+    output('test_list.extend(n)')                # 0.0011420630003158294
+    output('test_deque.extend(n)')               # 0.000888282999767398
+
+"""
+    Вот основное правило: если вам нужно что-то быстро дописать или вытащить, используйте deque.
+    Если вам нужен быстрый случайный доступ, используйте list. https://python-scripts.com/import-collections
+"""
+
+"""2 часть"""
+
+print('2 часть')
+output("""for i in n:
+               test_list.insert(0, i)""")  # 45.648187101000076
+output("""for i in n:
+               test_deque.appendleft(n)""")  # 0.010974553000323795
+output('test_list.pop(0)')  # 0.44451719400012735
+output('test_deque.popleft()')  # 8.78490000104648e-05
+output("""for i in n:
+               test_list.insert(0, i)""")  # 63.997972278999896
+output('test_deque.extendleft(n)')  # 0.0016368179999517452
+
+"""
+Операции добавления "слева" для списка очень долгое.
+ Результаты замеров разнятся на порядки. Причина - пересчет индексов.
+"""
+
+
+"""3 часть"""
+
+print('3 часть')
+output("""for i in n: 
+                test_list[i]""")               # 0.0061287230000743875
+output("""for i in n:      
+                test_deque[i]""")              # 0.0067439300000842195
+"""
+    В выборке список несколько быстрее, так как список это структура предназначенная
+    для произвольного доступа к данным, а дэк - это структура для выполнения 
+    последовательностей операций чтения и записи с начала и конца массивов данных
+"""
+
+
+
+"""
+Задача 4.
+Создайте обычный словарь и упорядоченный словарь OrderedDict.
+Выполните операции, равные по смыслу, с каждым из словарей и сделайте замеры.
+Опишите полученные результаты, сделайте выводы
+И есть ли смысл исп-ть OrderedDict в Python 3.6 и более поздних версиях
+"""
+
+
+from collections import OrderedDict
+from timeit import timeit
+
+
+common_dict = {}
+od_dict = OrderedDict()
+
+print('Добавление элементов')
+print(timeit("""for i in range(10):
+                    common_dict[i]=i""", globals=globals(), number=100000))     # 0.15785196900014853
+print(timeit("""for i in range(10):
+                    od_dict[i]=i""", globals=globals(), number=100000))         # 0.13760679600000003
+
+print('Чтение')
+print(timeit("""for i in range(10):
+                    common_dict[i]""", globals=globals(), number=100000))       # 0.16197109499989892
+print(timeit("""for i in range(10):
+                    od_dict[i]""", globals=globals(), number=100000))           # 0.13693380299991986
+
+print('Сравнение словарей')
+print(timeit('common_dict == common_dict', globals=globals(), number=100000))   # 0.03138516100079869
+print(timeit('od_dict == od_dict', globals=globals(), number=100000))           # 0.03739172699988558
+
+"""
+По результатам замеров особой разицы между "стандартным" словарем и OrderedDict
+нет. При этом, после версии 3.6 словари по умолчанию стали упорядоченными и, как
+следствие необходимости в OrderedDict нет. Также стандартные словари удобнее в
+сравнении - не надо думать о порядке. Но если порядок расположения элементов
+словаря критически важен при сравнении, то без OrderedDict не обойтись.
+"""
